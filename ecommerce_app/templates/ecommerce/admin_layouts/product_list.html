@@ -1,0 +1,141 @@
+{% extends 'ecommerce/admin_layouts/base.html' %}
+{% block content %}
+<h2>Products</h2>
+<a href="{% url 'create_product' %}" class="add-product-btn">Add New Product</a>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Category</th>
+                <th>Name</th>
+                <th>Vendor</th>
+                <th>Quantity</th>
+                <th>Original Price</th>
+                <th>Selling Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.category.name }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.vendor }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ product.original_price }}</td>
+                <td>{{ product.selling_price }}</td>
+                <td>
+                    <a href="{% url 'update_product' product.id %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'delete_product' product.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    /* General Styles */
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .add-product-btn {
+        display: inline-block;
+        margin-bottom: 15px;
+        padding: 10px 15px;
+        background-color: #7ef2c8;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .add-product-btn:hover {
+        background-color: #0dd3db;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        padding: 12px 15px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    .table th {
+        background-color:#49bcf5;
+        color: white;
+    }
+
+    .btn {
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #20ace8;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-danger {
+        background-color:#f53d65 ;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .add-product-btn {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+
+        .table th, .table td {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            font-size: 0.8rem;
+            padding: 5px 8px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .add-product-btn {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .table th, .table td {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}

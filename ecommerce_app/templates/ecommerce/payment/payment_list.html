@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payments</title>
+</head>
+<body>
+    <h1>Payments</h1>
+    <ul>
+        {% for payment in payments %}
+            <li>
+                <a href="{% url 'payment_detail' payment.pk %}">Payment for Order {{ payment.order.id }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'payment_create' %}">Create New Payment</a>
+</body>
+</html>

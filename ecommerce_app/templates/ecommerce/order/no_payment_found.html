@@ -1,0 +1,12 @@
+{% extends 'ecommerce/layouts/main.html' %}
+{% block title %}No Payment Found{% endblock title %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">No Payment Found for Order #{{ order.id }}</h1>
+    <p class="text-center">It seems like you haven't made any payment for this order yet.</p>
+    <div class="text-center mt-4">
+        <a href="{% url 'process_payment_manual' order.id %}" class="btn btn-primary">Make Payment</a>
+        <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary">Back to Order</a>
+    </div>
+</div>
+{% endblock content %}

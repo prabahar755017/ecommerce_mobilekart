@@ -1,0 +1,137 @@
+{% extends 'ecommerce/admin_layouts/base.html' %}
+{% block content %}
+<h2>Create Product</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="category">Category:</label>
+    <select name="category">
+        {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label for="name">Name:</label>
+    <input type="text" name="name" required><br>
+
+    <label for="vendor">Vendor:</label>
+    <input type="text" name="vendor" required><br>
+
+    <label for="product_image">Product Image:</label>
+    <input type="file" name="product_image"><br>
+
+    <label for="quantity">Quantity:</label>
+    <input type="number" name="quantity" required><br>
+
+    <label for="original_price">Original Price:</label>
+    <input type="number" name="original_price" required><br>
+
+    <label for="selling_price">Selling Price:</label>
+    <input type="number" name="selling_price" required><br>
+
+    <label for="description">Description:</label>
+    <textarea name="description" required></textarea><br>
+
+    <label for="status">Status:</label>
+    <select name="status">
+        <option value="0">Show</option>
+        <option value="1">Hidden</option>
+    </select><br>
+
+    <label for="trending">Trending:</label>
+    <select name="trending">
+        <option value="0">Default</option>
+        <option value="1">Trending</option>
+    </select><br>
+
+    <button type="submit">Create</button>
+</form>
+<a href="{% url 'list_products' %}">Back to product list</a>
+
+<style>
+    /* General styles */
+    form {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    a {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        form {
+            padding: 15px;
+        }
+
+        button {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        label, input, select, textarea, button {
+            font-size: 0.9rem;
+        }
+
+        form {
+            padding: 10px;
+        }
+    }
+</style>
+
+{% endblock %}

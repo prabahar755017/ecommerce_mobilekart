@@ -1,0 +1,43 @@
+{% extends 'ecommerce/layouts/main.html' %}
+{% block title %}
+  Login | MobileCart
+{% endblock title %}
+
+{% block content %}
+  <div class="container" style="margin-top:90px;min-height:600px;">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h4 class="mb-4">User Login</h4>
+        <hr style="border-color:#b8bfc2;">
+        {% include 'Ecommerce/inc/message.html' %}
+      </div>
+    </div>
+    <section class="py-4">
+      <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+          <div class="card shadow-sm p-4">
+            <form method="post" action="" autocomplete="off">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Login</button>
+              </div>
+            </form>
+            <div class="text-center mt-4">
+              <p class="mb-0">Don't have an account? 
+                <a href="{% url 'register' %}" class="text-primary">Sign Up</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+{% endblock content %}

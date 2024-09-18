@@ -1,0 +1,56 @@
+{% extends 'ecommerce/layouts/main.html' %}
+
+{% block title %}
+  Order Details | MobileKart
+{% endblock title %}
+
+{% block content %}
+<div class="container "style="margin-top:100px;min-height:600px;">
+    <div class="card shadow-sm border-light">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Order Details</h5>
+        </div>
+        <div class="card-body">
+            <h1 class="text-center mb-4">Order{{ order.id }}</h1>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Status</h5>
+                    <p class="lead">{{ order.status }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Total Price</h5>
+                    <p class="lead">${{ order.total_price }}</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <h5>Shipping Address</h5>
+                <p>{{ order.shipping_address }}</p>
+            </div>
+            <hr>
+            <h4 class="mb-4">Order Items</h4>
+            <ul class="list-group">
+                {% for item in order_items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">{{ item.product.name }}</h6>
+                        <small>Quantity: {{ item.quantity }} - Unit Price: ${{ item.unit_price }}</small>
+                    </div>
+                    <span class="badge bg-info text-white rounded-pill">
+                        Total: ${{ item.get_total }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="mt-4 text-center">
+                <a href="{% url 'payment_detail' order.id %}" class="btn btn-primary me-2">View Payment Detail</a>
+                <a href="{% url 'order_list' %}" class="btn btn-secondary">Back to Orders</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock content %}

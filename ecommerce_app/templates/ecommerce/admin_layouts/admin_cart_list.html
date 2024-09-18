@@ -1,0 +1,39 @@
+{% extends 'ecommerce/admin_layouts/base.html' %}
+
+{% block title %}Admin Cart List{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Cart Items List</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Cart ID</th>
+                <th>User</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Total Cost</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cart in cart_items %}
+            <tr>
+                <td>{{ cart.id }}</td>
+                <td>
+                    {% if cart.user %}
+                        {{ cart.user.username }}
+                    {% else %}
+                        Guest
+                    {% endif %}
+                </td>
+                <td>{{ cart.product.name }}</td>
+                <td>{{ cart.product_qty }}</td>
+                <td>Rs. {{ cart.total_cost }}</td>
+                <td>{{ cart.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

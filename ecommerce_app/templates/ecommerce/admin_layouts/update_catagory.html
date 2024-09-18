@@ -1,0 +1,25 @@
+{%extends 'ecommerce/admin_layouts/base.html'%}
+{% block content %}
+<h2>Update Catagory</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="name">Name:</label>
+    <input type="text" name="name" value="{{ catagory.name }}" required><br>
+
+    <label for="description">Description:</label>
+    <textarea name="description" required>{{ catagory.description }}</textarea><br>
+
+    <label for="status">Status:</label>
+    <select name="status">
+        <option value="0" {% if not catagory.status %}selected{% endif %}>Show</option>
+        <option value="1" {% if catagory.status %}selected{% endif %}>Hidden</option>
+    </select><br>
+
+    <label for="image">Image:</label>
+    <input type="file" name="image"><br>
+    <img src="{{ catagory.image.url }}" alt="Current Image"><br>
+
+    <button type="submit">Update</button>
+</form>
+<a href="{% url 'list_catagory' %}">Back to list</a>
+{% endblock %}

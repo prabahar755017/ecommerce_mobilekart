@@ -1,0 +1,41 @@
+{% extends 'ecommerce/layouts/main.html' %}
+{% block title %}
+   MobileKart | Create Order
+{% endblock title %}
+
+{% block content %}
+<div class="container"style="margin-top:100px;min-height:600px;">
+    <h1 class="text-center">Create Order</h1>
+    
+    <!-- Debug the product object -->
+    <p>Debug Info: Product ID = {{ products.id }}, Name = {{ products.name }}, Price = {{ products.selling_price }}</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Display only the specific product -->
+        <div class="form-group">
+            <div class="form-check">
+                <input type="hidden" name="product_id" value="{{ products.id }}">
+                <label class="form-check-label" for="product_{{ products.id }}">
+                    <!-- Display the product name and price -->
+                    {{ products.name }} - ${{ products.selling_price }}
+                </label>
+                <input type="number" class="form-control mt-2" name="quantity" placeholder="Quantity" min="1" max="{{ product.stock_quantity }}">
+            </div>
+        </div>
+
+        <!-- Shipping Address Field -->
+        <div class="form-group">
+            <label for="shipping_address">Shipping Address:</label>
+            <textarea id="shipping_address" name="shipping_address" class="form-control" rows="4"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-block">Place Order</button>
+    </form>
+
+    <!-- Back to Orders Button -->
+    <a href="{% url 'order_list' %}" class="btn btn-secondary btn-block mt-3">Back to Orders</a>
+</div>
+{% endblock content %}

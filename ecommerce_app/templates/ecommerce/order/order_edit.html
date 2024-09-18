@@ -1,0 +1,70 @@
+{% extends 'ecommerce/layouts/main.html' %}
+
+{% block title %}Edit Order{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-sm border-light">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Edit Order{{ order.id }}</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <h4 class="mb-3">Shipping Address</h4>
+                    <div class="form-floating">
+                        <textarea id="shipping_address" name="shipping_address" class="form-control" placeholder="Shipping Address" style="height: 100px;">{{ order.shipping_address }}</textarea>
+                        <label for="shipping_address">Shipping Address</label>
+                    </div>
+                </div>
+
+                <h4 class="mb-3">Order Items</h4>
+                <div id="order-items">
+                    {% for item in order_items %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        <select id="product_id_{{ forloop.counter }}" name="product_ids" class="form-select" required>
+                                            {% for product in products %}
+                                            <option value="{{ product.id }}" {% if item.product.id == product.id %}selected{% endif %}>{{ product.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <label for="product_id_{{ forloop.counter }}">Product</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        <input type="number" id="quantity_{{ forloop.counter }}" name="quantities" value="{{ item.quantity }}" class="form-control" required>
+                                        <label for="quantity_{{ forloop.counter }}">Quantity</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        <input type="number" id="unit_price_{{ forloop.counter }}" name="unit_prices" value="{{ item.unit_price }}" class="form-control" required readonly>
+                                        <label for="unit_price_{{ forloop.counter }}">Unit Price</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{% url 'order_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Include Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock content %}

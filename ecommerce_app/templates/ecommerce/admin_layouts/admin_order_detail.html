@@ -1,0 +1,37 @@
+{% extends 'ecommerce/admin_layouts/base.html' %}
+
+{% block title %}Order {{ order.id }} Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Order{{ order.id }} by {{ order.user.username }}</h2>
+    <p><strong>Order Date:</strong> {{ order.order_date|date:"Y-m-d H:i" }}</p>
+    <p><strong>Status:</strong> {{ order.status }}</p>
+    <p><strong>Total Price:</strong> Rs. {{ order.total_price }}</p>
+    <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
+    
+    <h4>Order Items</h4>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.orderitem_set.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>Rs. {{ item.unit_price }}</td>
+                <td>Rs. {{ item.get_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'admin_order' %}" class="btn btn-secondary">Back to Orders List</a>
+</div>
+{% endblock content %}

@@ -1,0 +1,32 @@
+{% extends 'ecommerce/layouts/main.html' %}
+
+{% block title %}
+  Order List | MobileKart
+{% endblock title %}
+
+{% block content %}
+<div class="container "style="margin-top:100px;min-height:600px;">
+    <h1 class="text-center mb-4">My Orders</h1>
+    <div class="list-group">
+        {% for order in orders %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="order-info">
+                <h5 class="mb-1">Order{{ order.id }}</h5>
+                <p class="mb-1">Status: <strong>{{ order.status }}</strong></p>
+                <p class="mb-1">Total Price: <strong>${{ order.total_price }}</strong></p>
+            </div>
+            <div class="order-actions">
+                <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary btn-sm me-2">Order Details</a>
+                <a href="{% url 'edit_order' order.id %}" class="btn btn-outline-warning btn-sm me-2">Edit</a>
+                <a href="{% url 'delete_order' order.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Include Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock content %}

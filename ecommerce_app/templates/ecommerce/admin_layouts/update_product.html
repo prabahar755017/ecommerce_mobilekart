@@ -1,0 +1,150 @@
+{% extends 'ecommerce/admin_layouts/base.html' %}
+{% block content %}
+<h2>Update Product</h2>
+<form method="POST" enctype="multipart/form-data" class="update-product-form">
+    {% csrf_token %}
+    
+    <label for="category">Category:</label>
+    <select name="category" class="form-control">
+        {% for category in categories %}
+        <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label for="name">Name:</label>
+    <input type="text" name="name" value="{{ product.name }}" class="form-control" required><br>
+
+    <label for="vendor">Vendor:</label>
+    <input type="text" name="vendor" value="{{ product.vendor }}" class="form-control" required><br>
+
+    <label for="product_image">Product Image:</label>
+    <input type="file" name="product_image" class="form-control"><br>
+    <img src="{{ product.product_image.url }}" alt="Current Image" class="product-image"><br>
+
+    <label for="quantity">Quantity:</label>
+    <input type="number" name="quantity" value="{{ product.quantity }}" class="form-control" required><br>
+
+    <label for="original_price">Original Price:</label>
+    <input type="number" name="original_price" value="{{ product.original_price }}" class="form-control" required><br>
+
+    <label for="selling_price">Selling Price:</label>
+    <input type="number" name="selling_price" value="{{ product.selling_price }}" class="form-control" required><br>
+
+    <label for="description">Description:</label>
+    <textarea name="description" class="form-control" required>{{ product.description }}</textarea><br>
+
+    <label for="status">Status:</label>
+    <select name="status" class="form-control">
+        <option value="0" {% if not product.status %}selected{% endif %}>Show</option>
+        <option value="1" {% if product.status %}selected{% endif %}>Hidden</option>
+    </select><br>
+
+    <label for="trending">Trending:</label>
+    <select name="trending" class="form-control">
+        <option value="0" {% if not product.trending %}selected{% endif %}>Default</option>
+        <option value="1" {% if product.trending %}selected{% endif %}>Trending</option>
+    </select><br>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+<a href="{% url 'list_products' %}" class="btn btn-secondary">Back to product list</a>
+
+<style>
+    /* General Form Styles */
+    .update-product-form {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .update-product-form label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .product-image {
+        max-width: 100px;
+        margin-bottom: 15px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .update-product-form {
+            padding: 15px;
+        }
+
+        .form-control {
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+
+        .product-image {
+            max-width: 80px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .update-product-form {
+            padding: 10px;
+        }
+
+        .form-control {
+            padding: 7px;
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            font-size: 0.85rem;
+            padding: 7px 14px;
+        }
+
+        .product-image {
+            max-width: 60px;
+        }
+    }
+</style>
+{% endblock %}

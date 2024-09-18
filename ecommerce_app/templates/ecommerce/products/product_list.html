@@ -1,0 +1,318 @@
+{% extends 'ecommerce/layouts/main.html' %}
+{% block title %}
+MobileKart | Online Shopping
+{% endblock title %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <section class="bg-light py-5" >
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar for Filters -->
+            <aside class="col-md-3 bg-light p-4">
+                <h4 class="mb-4">Filters</h4>
+                <form method="GET" action="{% url 'product_list' %}">
+                    <!-- Categories -->
+                    <h5 class="mb-3">Categories</h5>
+                    <a href="{% url 'home' %}">Home</a>
+                    <ul class="list-unstyled">
+                        {% for category in categories %}
+                        <li class="mb-2">
+                            <input type="checkbox" name="category" value="{{ category.id }}"
+                                   {% if category.id|stringformat:"s" in selected_categories %}checked{% endif %}>
+                            {{ category.name }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Price Range -->
+                    <h5 class="mt-4 mb-3">Price Range</h5>
+                    <div class="mb-3">
+                        <label for="min_price">Min Price:</label>
+                        <input type="number" id="min_price" name="min_price" class="form-control" value="{{ min_price }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="max_price">Max Price:</label>
+                        <input type="number" id="max_price" name="max_price" class="form-control" value="{{ max_price }}">
+                    </div>
+
+                    <!-- Trending -->
+                    <h5 class="mt-4 mb-3">Trending</h5>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="trending" value="1"
+                               {% if trending %}checked{% endif %}>
+                        <label class="form-check-label">Show Trending Products</label>
+                    </div>
+
+                    <!-- Sort by -->
+                    <h5 class="mt-4 mb-3">Sort by:</h5>
+                    <select name="sort" class="form-select" onchange="this.form.submit()">
+                        <option value="">Default</option>
+                        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Apply Filters</button>
+                </form>
+            </aside>
+
+            <!-- Main Product List Section -->
+            <main class="col-md-9">
+                <div class="image-row mb-4">
+                    {% for item in products %}
+                        <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
+                             <div class="card product-card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                                {% if item.collection and item.collection.name %}
+                                <a href="{% url 'product_details' cname=item.collection.name pname=item.name %}" class="stretched-link">
+                                    {% else %}
+                                    <a href="#" class="stretched-link">
+                                        {% endif %}
+                <img src="{{ item.product_image.url }}" class="card-img-top img-fluid rounded-top" alt="{{ item.name }}" style="height: 250px; object-fit: cover;">
+                <div class="card-body p-3 text-center">
+                    <h5 class="card-title text-dark fw-bold mb-2">{{ item.name }}</h5>
+                    <p class="card-text d-flex justify-content-between align-items-center">
+                        <span class="old_price text-muted" style="font-size: 0.9rem;"><s>Rs. {{ item.original_price | stringformat:'d' }}</s></span>
+                        <span class="new_price text-danger fw-bold" style="font-size: 1.1rem;">Rs. {{ item.selling_price | stringformat:'d' }}</span>
+                    </p>
+                    <button class="btn btn-primary w-100 mt-2 add-to-cart-btn">Add to Cart</button>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            {% if products.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% for num in products.paginator.page_range %}
+                            <li class="page-item {% if products.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}">{{ num }}</a>
+                            </li>
+                            {% endfor %}
+                            {% if products.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+    
+    .container-fluid {
+        margin-top: 0;
+        margin-bottom:0;
+    }
+    
+    h4, h5 {
+        color: #333;
+    }
+    
+    h4 {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    
+    h5 {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+    
+    /* Sidebar Styles */
+    aside {
+        background-color: #fff;
+        border-right: 1px solid #ddd;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    aside h4 {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    aside h5 {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    
+    aside .form-control, aside .form-check-input {
+        margin-bottom: 10px;
+    }
+    
+    aside .btn-primary {
+        background-color: #2874f0;
+        border: none;
+        padding: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    
+    aside .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    
+    /* Product List Styles */
+    main {
+        padding: 20px;
+        background-color: #fff;
+        border-left: 1px solid #ddd;
+    }
+    
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+        color: #333;
+    }
+    
+    .old_price {
+        font-size: 0.9rem;
+        color: #999;
+    }
+    
+    .new_price {
+        font-size: 1.1rem;
+        color: #e53935;
+    }
+    
+    .add-to-cart-btn {
+        background-color: #ff5722;
+        border: none;
+        color: #fff;
+        padding: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    
+    .add-to-cart-btn:hover {
+        background-color: #e64a19;
+    }
+    
+    /* Pagination Styles */
+    .pagination {
+        margin-top: 20px;
+        justify-content: center;
+    }
+    
+    .page-item.active .page-link {
+        background-color: #2874f0;
+        border-color: #2874f0;
+    }
+    
+    .page-link {
+        border-radius: 50%;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .page-link:hover {
+        background-color: #f1f1f1;
+    }
+    
+    .page-item.disabled .page-link {
+        color: #999;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+        aside {
+            margin-bottom: 20px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .product-card {
+            box-shadow: none;
+        }
+    }
+    /* Styles for horizontal image line */
+    .image-row {
+        display: flex;
+        flex-wrap: nowrap; /* Ensure images stay in a single line */
+        overflow-x: auto; /* Allows horizontal scrolling if images overflow */
+        gap: 10px; /* Space between images */
+    }
+    
+    .image-item {
+        flex: 0 0 auto; /* Prevent items from growing or shrinking */
+    }
+    
+    .image-item img {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-width: 200px; /* Adjust size as needed */
+        border-radius: 8px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .image-item img {
+            max-width: 150px; /* Smaller images on smaller screens */
+        }
+    }
+    
+</style>
+    
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{% endblock content %}

@@ -1,0 +1,96 @@
+{% load static %}
+<div id="customCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+  <!-- Indicators -->
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#customCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#customCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+  </div>
+
+  <!-- Slider Content -->
+  <div class="carousel-inner">
+    <!-- First Slide -->
+    <div class="carousel-item active">
+      <div class="position-relative">
+        <img src="{% static 'images/slide-1.png' %}" class="img-fluid w-100 rounded shadow-lg" alt="Slide 1" style="max-height: 600px;">
+
+        <!-- Overlay content with custom animation -->
+        <div class="carousel-caption custom-animation d-none d-md-block">
+          <h5>Deals and Promotions</h5>
+          <p>Get the best Beats by Dre Studio 3 headphones for only $279.99!</p>
+          <a href="#" class="btn btn-primary">Shop Now</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Slide -->
+    <div class="carousel-item">
+      <div class="position-relative">
+        <img src="{% static 'images/slide-2.png' %}" class="img-fluid w-100 rounded shadow-lg" alt="Slide 2" style="max-height: 600px;, object-fit: fill;">
+
+        <!-- Overlay content with custom animation -->
+        <div class="carousel-caption custom-animation d-none d-md-block">
+          <h5>New Arrival</h5>
+          <p>Apple iPad Pro 12.9 Inch - Grab it today for only $999.99!</p>
+          <a href="#" class="btn btn-primary">Explore More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#customCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#customCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+<style>
+  /* Base styles for overlay */
+  .carousel-caption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    opacity: 0; /* Initially hidden */
+    visibility: hidden; /* Initially hidden */
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; /* Transition effect */
+  }
+
+  /* Animation when the carousel-item becomes active */
+  .carousel-item.active .carousel-caption {
+    opacity: 1; /* Fully visible */
+    visibility: visible; /* Visible */
+    transform: translate(-50%, -50%) translateY(0); /* Slide up animation */
+  }
+
+  /* Custom animation class for sliding in from the bottom */
+  .custom-animation {
+    transform: translate(-50%, 30%); /* Initial position below the image */
+  }
+
+  /* Adjust overlay content for smaller screens */
+  @media (max-width: 768px) {
+    .carousel-caption h5 {
+      font-size: 1.5rem;
+    }
+
+    .carousel-caption p {
+      font-size: 1rem;
+    }
+
+    .carousel-caption a.btn {
+      font-size: 0.9rem;
+    }
+  }
+  .carousel {
+    margin-top:80px;
+  }
+</style>

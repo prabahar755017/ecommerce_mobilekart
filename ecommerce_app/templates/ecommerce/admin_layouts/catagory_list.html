@@ -1,0 +1,48 @@
+{% extends 'ecommerce/admin_layouts/base.html' %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Categories</h2>
+
+    <!-- Add New Category Button -->
+    <div class="d-flex justify-content-end mb-3">
+        <a class="btn btn-primary" href="{% url 'create_catagory' %}">Add New Category</a>
+    </div>
+
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for catagory in catagories %}
+                <tr>
+                    <td>{{ catagory.name }}</td>
+                    <td>{{ catagory.description }}</td>
+                    <td>{{ catagory.status|yesno:"Hidden,Show" }}</td>
+                    <td>
+                        <a class="btn btn-warning btn-sm" href="{% url 'update_catagory' catagory.id %}">Edit</a>
+                        <a class="btn btn-danger btn-sm" href="{% url 'delete_catagory' catagory.id %}">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Optional Custom CSS -->
+<style>
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+</style>
+{% endblock %}
