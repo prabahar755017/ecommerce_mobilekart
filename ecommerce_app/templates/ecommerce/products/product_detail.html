@@ -8,36 +8,35 @@ MobileKart | Online Shopping
   <div class="container">
     <div class="row">
       <div class="col-12">
-        <h4 class="mb-3">  {{products}} Details</h4>
+        <h4 class="mb-3">  {{product}} Details</h4>
         <hr style="border-color:#b8bfc2;">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb bg-white p-2 shadow-sm">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'collections' products.category.name  %}">Collections</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{products}}</li>
+            <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name  %}">Collections</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
           </ol>
         </nav>
-        {% include 'ecommerce/inc/message.html' %}
       </div>
       <div class="col-md-4 col-sm-12 my-3 pic-box">
         <div class="card shadow-sm">
-          {% if products.trending %}
+          {% if product.trending %}
           <div class="hot-tag">Hot</div>
           {% endif %}
-          <img src="{{products.product_image.url}}" class="img-fluid rounded" alt="{{products}}">
+          <img src="{{product.product_image.url}}" class="img-fluid rounded" alt="{{product}}">
         </div>
       </div>
       <div class="col-md-8 col-sm-12 my-3">
         <div class="card p-4 shadow-sm">
-          <h5 class="text-success font-weight-bold">{{products | upper}}</h5>
-          <p class="text-muted">{{products.vendor}}</p>
-          <p class="text-secondary">{{products.description}}</p>
-          <h6 class="my-2 text-muted"><s>Rs.{{products.original_price}}</s></h6>
-          <h5 class="my-2 text-danger font-weight-bold">Rs.{{products.selling_price}}</h5>
+          <h5 class="text-success font-weight-bold">{{product | upper}}</h5>
+          <p class="text-muted">{{product.vendor}}</p>
+          <p class="text-secondary">{{product.description}}</p>
+          <h6 class="my-2 text-muted"><s>Rs.{{product.original_price}}</s></h6>
+          <h5 class="my-2 text-danger font-weight-bold">Rs.{{product.selling_price}}</h5>
 
           <div class="my-3">
-            {% if products.quantity > 0 %}
-            <input type="hidden" value="{{products.id}}" id="pid">
+            {% if product.quantity > 0 %}
+            <input type="hidden" value="{{product.id}}" id="pid">
             <div class="d-flex align-items-center mb-3">
               <div class="input-group" style="width:150px">
                 <button class="input-group-text bg-success text-light" id="btnMinus">
@@ -57,11 +56,10 @@ MobileKart | Online Shopping
               <i class="fa fa-times"></i> Out of Stock
             </button>
             {% endif %}
-
             {% if user.is_authenticated %}
-            <a href="{% url 'create_order' %}" class="btn btn-danger btn-lg ml-2">Buy Now</a>
+              <a href="{% url 'create_order' category.id product.id %}" class="btn btn-primary">Buy Now</a>
             {% else %}
-            <button class="btn btn-danger btn-lg ml-2" onclick="showLoginPopup()">Buy Now</button>
+              <button class="btn btn-danger btn-lg ml-2" onclick="redirectToLogin()">Buy Now</button>
             {% endif %}
           </div>
         </div>
@@ -129,7 +127,7 @@ MobileKart | Online Shopping
           .then(data => {
               if (data.status === "Product Already in Cart") {
                   alert("You already added this product to the cart.");
-                  window.location.href = "/cart";  // Redirect to the cart page
+                  window.location.href = "{% url 'cart' %}";  
               } else if (data.status === "Product Added to Cart") {
                   alert("Product successfully added to the cart.");
               } else if (data.status === "Product Stock Not Available") {
@@ -151,36 +149,14 @@ MobileKart | Online Shopping
   });
   
   
-    btnFav.addEventListener("click", function() {
-       
-          let postObj = { 
-              'pid': pid.value
-          }
-          console.log(postObj);
-          fetch("/fav",{
-            method: 'POST',
-            credentials: 'same-origin',
-            headers:{
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': '{{ csrf_token }}',
-            },
-            body: JSON.stringify(postObj)
-          }).then(response => {
-            return response.json();
-          }).then(data => {
-            //console.log(data);
-            alert(data['status']);
-          });
-        
-    });
+    
   
   
   });
-  function showLoginPopup() {
-    alert("You are not logged in. Please log in to buy a product.");
-    window.location.href = "{% url 'login' %}?next={% url 'create_order' %}";
-    }
+  function redirectToLogin() {
+    window.location.href = "{% url 'login' %}?next={% url 'create_order' category.id product.id %}";
+}
+
   
   
    </script>

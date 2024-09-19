@@ -12,6 +12,7 @@
                 <th>User</th>
                 <th>Order Date</th>
                 <th>Status</th>
+                <th>Is_paid</th>
                 <th>Total Price</th>
                 <th>Actions</th>
             </tr>
@@ -23,6 +24,7 @@
                 <td>{{ order.user.username }}</td>
                 <td>{{ order.order_date|date:"Y-m-d H:i" }}</td>
                 <td>{{ order.status }}</td>
+                <td>{{ order.is_paid }}</td>
                 <td>Rs. {{ order.total_price }}</td>
                 <td>
                     <a href="{% url 'admin_order_detail' order.id %}" class="btn btn-sm btn-primary">View</a>

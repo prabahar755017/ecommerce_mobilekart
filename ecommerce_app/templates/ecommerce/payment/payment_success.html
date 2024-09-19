@@ -1,0 +1,63 @@
+{% extends 'ecommerce/layouts/main.html' %}
+
+{% block title %}
+  Payment Success | MobileKart
+{% endblock title %}
+
+{% block content %}
+<div class="container py-5 my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <!-- Payment Success Card -->
+            <div class="card border-success shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="card-title text-success">Thank You!</h2>
+                    <p class="card-text">Your payment was successful and your order has been confirmed.</p>
+                    <hr class="my-4">
+                    <p class="card-text">You will receive a confirmation email shortly. If you have any questions, feel free to contact our support team.</p>
+                    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Return to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom styles for the payment success page */
+    .card {
+        border-radius: 12px;
+    }
+
+    .card-title {
+        font-size: 2rem;
+        font-weight: 500;
+    }
+
+    .card-text {
+        font-size: 1.2rem;
+        line-height: 1.5;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004494;
+    }
+
+    .my-5 {
+        margin-top: 3rem !important;
+        margin-bottom: 3rem !important;
+    }
+
+    .py-5 {
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important;
+    }
+</style>
+{% endblock %}

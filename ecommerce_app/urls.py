@@ -29,7 +29,7 @@ urlpatterns=[
              path('addtocart',views.add_to_cart,name="addtocart"),
              path('orders/', views.order_list, name='order_list'),
              path('orders/<int:pk>/', views.order_detail, name='order_detail'),
-             path('orders/create/', views.create_order, name='create_order'),
+             path('orders/create/<int:category_id>/<int:product_id>/', views.create_order, name='create_order'),
              path('order_items/', views.order_list, name='order_list'),
              path('order/user/', views.order_list_user, name='order_list_user'),
              path('payments/<int:pk>/', views.payment_detail, name='payment_detail'),
@@ -39,6 +39,6 @@ urlpatterns=[
              path('admin/cart/', views.admin_cart_list, name='admin_cart_list'),
              path('admin/orders/', views.admin_order_list, name='admin_order'),
              path('admin/orders/<int:order_id>/', views.admin_order_detail, name='admin_order_detail'),
-             
-
+             path('payment/<int:order_id>/', views.payment, name='payment'),
+             path('payment-success/', views.payment_success, name='payment_success'),
 ]

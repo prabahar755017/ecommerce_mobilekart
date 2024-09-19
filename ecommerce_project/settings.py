@@ -131,6 +131,10 @@ MEDIA_URL = '/media/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 
+# Stripe settings
+STRIPE_TEST_PUBLIC_KEY = 'your_publishable_key'
+STRIPE_TEST_SECRET_KEY = 'your_secret_key'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

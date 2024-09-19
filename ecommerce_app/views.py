@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 import json
+import stripe 
 from django.http import  JsonResponse
 
 
@@ -213,20 +214,15 @@ def collectionsview(request,name):
   else:
     return redirect('collections')
  
- 
-def product_details(request,cname,pname):
-    if(Category.objects.filter(name=cname,status=0)):
-      if(Product.objects.filter(name=pname,status=0)):
-        products=Product.objects.filter(name=pname,status=0).first()
-        return render(request,"ecommerce/products/product_detail.html",{"products":products})
-      else:
-        messages.error(request,"No Such Produtct Found")
-        return redirect('collections')
+def product_details(request, cname, pname):
+    category = get_object_or_404(Category, name=cname, status=0)
+    product = Product.objects.filter(name=pname, status=0).first()
+
+    if product:
+        return render(request, 'ecommerce/products/product_detail.html', {'product': product, 'category': category})
     else:
-      messages.error(request,"No Such Catagory Found")
-      return redirect('collections')
-
-
+        messages.error(request, "No Such Product Found")
+        return redirect('collections')
 
 
 def users_list(request):
@@ -327,48 +323,42 @@ def order_detail(request, pk):
 
 
 @login_required
-def create_order(request):
+def create_order(request, category_id, product_id):
+    # Fetch the product using product_id and category_id from the URL
+    product = get_object_or_404(Product, id=product_id)
+    category = get_object_or_404(Category, id=category_id)
+
     if request.method == 'POST':
-        # Get data from POST request
-        products = request.POST.getlist('product_ids')
-        quantities = request.POST.getlist('quantities')
+        quantity = request.POST.get('quantity')
         shipping_address = request.POST.get('shipping_address')
 
-        if not products or not quantities or len(products) != len(quantities):
+        if not quantity or not shipping_address:
             return HttpResponse("Invalid data", status=400)
+
+        quantity = int(quantity)
+        total_price = product.selling_price * quantity
 
         # Create a new order
         order = Order.objects.create(
             user=request.user,
             shipping_address=shipping_address,
-            total_price=0,  # This will be updated later
+            total_price=total_price,
             is_paid=False,
             status='pending'
         )
 
-        total_price = 0
-        for product_id, quantity in zip(products, quantities):
-            product = get_object_or_404(Product, id=product_id)
-            quantity = int(quantity)
-            selling_price = product.selling_price
-            total_price += selling_price * quantity
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=quantity,
-                unit_price=selling_price
-            )
+        # Create an order item
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=quantity,
+            unit_price=product.selling_price
+        )
 
-        # Update total price of the order
-        order.total_price = total_price
-        order.save()
+        return redirect('payment', order_id=order.id)
 
-        return redirect('order_list')
-
-    # Render a form for creating orders
-    products = Product.objects.all()
-    return render(request, 'ecommerce/order/create_order.html', {'products': products})
-
+    # Render the form and pass the product and category to the template
+    return render(request, 'ecommerce/order/create_order.html', {'product': product, 'category': category})
 
 @login_required
 def process_payment_manual(request, order_id):
@@ -452,7 +442,7 @@ def edit_order(request, pk):
         order.total_price = total_price
         order.save()
 
-        return redirect('order_list')
+        return redirect('order_list_user')
 
     products = Product.objects.all()
     order_items = OrderItem.objects.filter(order=order)
@@ -571,3 +561,44 @@ def product_list(request):
     return render(request, 'ecommerce/products/product_list.html', context)
 
 
+ 
+
+
+@login_required
+def payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if request.method == 'POST':
+        # Get payment details from the form
+        payment_method = request.POST.get('payment_method')
+        amount = request.POST.get('amount')  # Amount should match the order total
+
+        # Validate and simulate payment processing
+        if payment_method and amount:
+            try:
+                # Create a Payment record
+                payment = Payment.objects.create(
+                    order=order,
+                    amount=amount,
+                    payment_method=payment_method,
+                    payment_status=True,  # Simulate successful payment
+                    transaction_id="TXN123456"  # Simulated transaction ID
+                )
+                
+                # Update the order status
+                order.is_paid = True
+                order.save()
+
+                messages.success(request, "Payment successful! Your order is confirmed.")
+                return redirect('payment_success')
+            except Exception as e:
+                messages.error(request, f"Payment processing error: {str(e)}")
+        else:
+            messages.error(request, "Invalid payment details.")
+
+    return render(request, 'ecommerce/payment/payment.html', {'order': order})
+
+
+@login_required
+def payment_success(request):
+    return render(request, 'ecommerce/payment/payment_success.html')
