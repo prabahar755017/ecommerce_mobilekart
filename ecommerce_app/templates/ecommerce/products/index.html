@@ -24,7 +24,7 @@
       {% for item in products %}
       <div class="col-md-4 col-lg-3 d-flex align-items-stretch">
         <div class="card my-3 shadow-lg border-0 rounded-4 overflow-hidden hover-overlay">
-          <a href="{% url 'product_details' category_name item.name %}" class="text-decoration-none">
+          <a href="{% url 'product_details' category_name item.name %}">          
             <img src="{{item.product_image.url}}" class="card-img-top rounded-4" alt="{{item.name}}" style="height: 250px; object-fit: cover; transition: transform 0.3s ease;">
             <div class="card-body p-4">
               <h5 class="card-title text-dark fw-bold mb-2">{{ item.name }}</h5>

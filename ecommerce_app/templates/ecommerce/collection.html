@@ -1,38 +1,26 @@
 {% extends 'ecommerce/layouts/main.html' %}
 {% block title %}
-  Registration | MobileKart
+  Collections | MobileKart
 {% endblock title %}
 
 {% block content %}
-  <!-- Hero Section -->
-  <section class="py-5 text-center container" style="margin-top:20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
-    <div class="row py-lg-5">
-      <div class="col-lg-8 col-md-10 mx-auto">
-        <h1 class="fw-bold">Bestsellers</h1>
-        <p class="lead text-muted">Our most popular products based on sales. Updated hourly.</p>
-        <p>
-          <a href="{% url 'login' %}" class="btn btn-primary btn-lg my-2 rounded-pill px-4">Already a User</a>
-          <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg my-2 rounded-pill px-4">Register</a>
-        </p>
-      </div>
-    </div>
-  </section>
-
   <!-- Categories Section -->
-  <section class="bg-light py-4 my-5" style="min-height:600px;">
+  <section class="bg-light py-5" style="min-height:600px; margin-top:40px">
     <div class="container">
-      <div class="row">
-        <div class="col-12 text-center mb-5">
-          <h4 class="mb-3">Explore Our Categories</h4>
-          <hr style="border-color:#b8bfc2; width: 50px; margin: auto;">
+      <div class="row mb-5 text-center">
+        <div class="col-12">
+          <h4 class="mb-3 text-uppercase font-weight-bold">Explore Our Categories</h4>
+          <div class="mx-auto" style="width: 60px; height: 4px; background-color: #007bff;"></div>
         </div>
+      </div>
 
-        <!-- Category Cards -->
+      <!-- Category Cards -->
+      <div class="row">
         {% for item in catagory %}
         <div class="col-md-6 col-lg-4 col-xl-3 d-flex align-items-stretch mb-4">
-          <div class="card shadow-sm border-0 rounded-lg overflow-hidden">
-            <a href="{% url 'collections' item.name %}">
-              <img src="{{item.image.url}}" class="card-img-top img-fluid" alt="{{ item.name }}" style="height: 200px; object-fit: cover;">
+          <div class="card shadow-sm border-0 rounded-lg overflow-hidden" style="transition: all 0.3s ease;">
+            <a href="{% url 'collections_view' item.name %}">
+              <img src="{{item.image.url}}" class="card-img-top img-fluid" alt="{{ item.name }}" style="height: 250px; object-fit: cover;">
               <div class="card-body text-center">
                 <h5 class="card-title text-primary font-weight-bold">{{ item.name }}</h5>
                 <p class="card-text text-muted">{{ item.description }}</p>
@@ -41,140 +29,115 @@
           </div>
         </div>
         {% endfor %}
-
       </div>
     </div>
   </section>
-  {% endblock content %}
-  <style>
-    /* Section Background */
-    section {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      padding: 40px 0;
-    }
-  
-    /* Hero Section */
-    .hero-section {
-      padding: 40px 0;
-      text-align: center;
-    }
-  
+{% endblock content %}
+
+<style>
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.8), rgba(0, 92, 185, 0.8)), url('https://source.unsplash.com/1600x900/?shopping') no-repeat center center/cover;
+    padding: 60px 0;
+    color: white;
+    border-radius: 15px;
+  }
+
+  .hero-section h1 {
+    font-size: 3rem;
+    font-weight: 700;
+  }
+
+  .hero-section p {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+  }
+
+  /* Button Styles */
+  .btn-light {
+    background-color: white;
+    color: #007bff;
+    border: none;
+    padding: 12px 30px;
+  }
+
+  .btn-outline-light {
+    border: 2px solid white;
+    color: white;
+    padding: 12px 30px;
+  }
+
+  .btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Category Section */
+  section.bg-light {
+    background: #f7f9fa;
+    padding: 40px 0;
+  }
+
+  .card {
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-img-top {
+    border-bottom: 4px solid #007bff;
+    border-radius: 15px 15px 0 0;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    color: #007bff;
+    margin-top: 15px;
+  }
+
+  .card-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 10px;
+  }
+
+  /* Responsive Styling */
+  @media (max-width: 768px) {
     .hero-section h1 {
       font-size: 2.5rem;
-      font-weight: bold;
     }
-  
+
     .hero-section p {
-      font-size: 1.1rem;
-      color: #6c757d;
+      font-size: 1rem;
     }
-  
-    .hero-section .btn {
-      margin: 10px;
-      padding: 10px 20px;
-      border-radius: 25px;
-      transition: all 0.3s ease;
-    }
-  
-    /* Button Styles */
-    .btn-primary {
-      background-color: #007bff;
-      border-color: #007bff;
-    }
-  
-    .btn-primary:hover {
-      background-color: #0056b3;
-      border-color: #004080;
-      transform: scale(1.05);
-    }
-  
-    .btn-outline-secondary {
-      border-color: #6c757d;
-      color: #6c757d;
-    }
-  
-    .btn-outline-secondary:hover {
-      background-color: #6c757d;
-      color: white;
-      transform: scale(1.05);
-    }
-  
-    /* Card Styles */
-    .card {
-      border: none;
-      border-radius: 0.5rem;
-      transition: all 0.3s ease;
-    }
-  
-    .card:hover {
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-      transform: translateY(-5px);
-    }
-  
+
     .card-img-top {
-      border-bottom: 3px solid #007bff;
+      height: 220px;
     }
-  
-    .card-title {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-      color: #007bff;
+  }
+
+  @media (max-width: 576px) {
+    .hero-section h1 {
+      font-size: 2rem;
     }
-  
-    .card-text {
+
+    .hero-section p {
       font-size: 0.9rem;
-      color: #6c757d;
     }
-  
-    /* Media Queries for Responsive Design */
-    @media (max-width: 768px) {
-      .hero-section h1 {
-        font-size: 2rem;
-      }
-  
-      .hero-section p {
-        font-size: 1rem;
-      }
-  
-      .hero-section .btn {
-        width: 100%;
-        padding: 12px;
-      }
-  
-      .card-title {
-        font-size: 1.1rem;
-      }
-  
-      .card-text {
-        font-size: 0.85rem;
-      }
+
+    .card-img-top {
+      height: 180px;
     }
-  
-    @media (max-width: 576px) {
-      .hero-section {
-        padding: 2rem 1rem;
-      }
-  
-      .hero-section h1 {
-        font-size: 1.75rem;
-      }
-  
-      .hero-section p {
-        font-size: 0.9rem;
-      }
-  
-      .card-img-top {
-        height: 180px;
-        object-fit: cover;
-      }
-  
-      .card-title {
-        font-size: 1rem;
-      }
-  
-      .card-text {
-        font-size: 0.75rem;
-      }
+
+    .card-title {
+      font-size: 1rem;
     }
-  </style>
-  
+
+    .card-text {
+      font-size: 0.85rem;
+    }
+  }
+</style>

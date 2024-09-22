@@ -16,8 +16,7 @@
                 <p class="mb-1">Total Price: <strong>${{ order.total_price }}</strong></p>
             </div>
             <div class="order-actions">
-                <a href="{% url 'process_payment_manual' order.id %}" class="btn btn-outline-success btn-sm me-2">Make Payment</a>
-                <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary btn-sm me-2">Order Details</a>
+                 <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary btn-sm me-2">Order Details</a>
                 <a href="{% url 'edit_order' order.id %}" class="btn btn-outline-warning btn-sm me-2">Edit</a>
                 <a href="{% url 'delete_order' order.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
             </div>

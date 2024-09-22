@@ -5,161 +5,84 @@ MobileKart | Online Shopping
 
 {% block content %}
 <section class="bg-light py-4 my-5" style="min-height:600px;">
-  <div class="container">
+  <div class="container product-detail-page">
     <div class="row">
-      <div class="col-12">
-        <h4 class="mb-3">  {{product}} Details</h4>
-        <hr style="border-color:#b8bfc2;">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb bg-white p-2 shadow-sm">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'collections' product.category.name  %}">Collections</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
-          </ol>
-        </nav>
-      </div>
-      <div class="col-md-4 col-sm-12 my-3 pic-box">
-        <div class="card shadow-sm">
-          {% if product.trending %}
-          <div class="hot-tag">Hot</div>
-          {% endif %}
-          <img src="{{product.product_image.url}}" class="img-fluid rounded" alt="{{product}}">
+        <!-- Product Image -->
+        <div class="col-md-6">
+            <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="img-fluid">
         </div>
-      </div>
-      <div class="col-md-8 col-sm-12 my-3">
-        <div class="card p-4 shadow-sm">
-          <h5 class="text-success font-weight-bold">{{product | upper}}</h5>
-          <p class="text-muted">{{product.vendor}}</p>
-          <p class="text-secondary">{{product.description}}</p>
-          <h6 class="my-2 text-muted"><s>Rs.{{product.original_price}}</s></h6>
-          <h5 class="my-2 text-danger font-weight-bold">Rs.{{product.selling_price}}</h5>
 
-          <div class="my-3">
+        <!-- Product Info -->
+        <div class="col-md-6">
+            <h2>{{ product.name }}</h2>
+            <p>Brand: {{ product.vendor }}</p>
+
+            <!-- Pricing -->
+            <p><span class="text-danger">₹{{ product.selling_price }}</span> 
+               <small><del>₹{{ product.original_price }}</del></small></p>
+            
+            <!-- Stock Info -->
             {% if product.quantity > 0 %}
-            <input type="hidden" value="{{product.id}}" id="pid">
-            <div class="d-flex align-items-center mb-3">
-              <div class="input-group" style="width:150px">
-                <button class="input-group-text bg-success text-light" id="btnMinus">
-                  <i class="fa fa-minus"></i>
-                </button>
-                <input type="text" name="qty" id="txtQty" value="1" class="form-control text-center">
-                <button class="input-group-text bg-success text-light" id="btnPlus">
-                  <i class="fa fa-plus"></i>
-                </button>
-              </div>
+              <p class="text-success">In Stock {{ product.quantity }}</p>
+            {% else %}
+              <p class="text-danger">Out of Stock{{ product.quantity }}</p>
+            {% endif %}
+
+            <!-- Quantity Selector -->
+            <div class="quantity-selector">
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.quantity }}">
+                <p>Total Price: ₹<span id="total">{{ product.selling_price }}</span></p>
             </div>
-            <button class="btn btn-primary shadow-sm btn-lg" id="btnCart">
-              <i class="fa fa-shopping-cart"></i> Add to Cart
-            </button>
-            {% else %}
-            <button class="btn btn-secondary btn-lg" disabled>
-              <i class="fa fa-times"></i> Out of Stock
-            </button>
-            {% endif %}
-            {% if user.is_authenticated %}
-              <a href="{% url 'create_order' category.id product.id %}" class="btn btn-primary">Buy Now</a>
-            {% else %}
-              <button class="btn btn-danger btn-lg ml-2" onclick="redirectToLogin()">Buy Now</button>
-            {% endif %}
-          </div>
+
+            <!-- Add to Cart / Buy Now -->
+            <div class="action-buttons">
+                <form method="POST" action="{% url 'add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" id="hidden-quantity" value="1">
+                    <button type="submit" class="btn btn-warning btn-lg">Add to Cart</button>
+                </form>
+
+                <form method="POST" action="{% url 'create_order' category.id product.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="quantity" id="hidden-quantity-buy" value="1">
+              
+                  {% if user.is_authenticated %}
+                      <!-- If user is logged in, submit the form to create an order -->
+                      <button type="submit" class="btn btn-primary">Buy Now</button>
+                  {% else %}
+                      <!-- If user is not logged in, redirect them to the login page -->
+                      <button type="button" class="btn btn-danger btn-lg ml-2" onclick="redirectToLogin()">Buy Now</button>
+                  {% endif %}
+              </form>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
 </section>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function(event) {
-    const btnPlus = document.getElementById("btnPlus");
-    const btnMinus = document.getElementById("btnMinus");
-    const txtQty = document.getElementById("txtQty");
-    const pid = document.getElementById("pid");
-    const btnCart = document.getElementById("btnCart");
-    const btnFav = document.getElementById("btnFav");
-  
-    btnPlus.addEventListener("click", function() {
-      let qty=parseInt(txtQty.value,10);
-      qty=isNaN(qty)?0:qty;
-      //console.log(qty);
-      if(qty<10){
-        qty++;
-        txtQty.value=qty;
-      }
-    });
-  
-    btnMinus.addEventListener("click", function() {
-        let qty=parseInt(txtQty.value,10);
-        qty=isNaN(qty)?0:qty;
-        //console.log(qty);
-        if(qty>1){
-          qty--;
-          txtQty.value=qty;
-        }
-    });
-  
-    btnCart.addEventListener("click", function() {
-      let qty = parseInt(txtQty.value, 10);
-      qty = isNaN(qty) ? 0 : qty;
-  
-      if (qty > 0) {
-          let postObj = { 
-              'product_qty': qty, 
-              'pid': pid.value
-          }
-  
-          fetch("/addtocart", {
-              method: 'POST',
-              credentials: 'same-origin',
-              headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json',  // Ensure the content type is JSON
-                  'X-Requested-With': 'XMLHttpRequest',
-                  'X-CSRFToken': '{{ csrf_token }}',
-              },
-              body: JSON.stringify(postObj)
-          })
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error("Network response was not ok");
-              }
-              return response.json();
-          })
-          .then(data => {
-              if (data.status === "Product Already in Cart") {
-                  alert("You already added this product to the cart.");
-                  window.location.href = "{% url 'cart' %}";  
-              } else if (data.status === "Product Added to Cart") {
-                  alert("Product successfully added to the cart.");
-              } else if (data.status === "Product Stock Not Available") {
-                  alert("Sorry, the product is out of stock.");
-              } else if (data.status === "Invalid Access") {
-                  alert("Invalid request.");
-              } else {
-                  alert("An error occurred. Please try again.");
-              }
-          })
-          .catch(error => {
-              console.error("There was a problem with the fetch operation:", error);
-              alert("Failed to add product to cart. Please check your connection and try again.");
-          });
-  
-      } else {
-          alert("Please enter a valid quantity.");
-      }
-  });
-  
-  
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-  
-  
-  });
-  function redirectToLogin() {
-    window.location.href = "{% url 'login' %}?next={% url 'create_order' category.id product.id %}";
-}
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
 
-  
-  
-   </script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script>
+    const quantityInput = document.getElementById('quantity');
+    const totalSpan = document.getElementById('total');
+    const hiddenQuantity = document.getElementById('hidden-quantity');
+    const hiddenQuantityBuy = document.getElementById('hidden-quantity-buy');
+    const pricePerItem = {{ product.selling_price }};
+
+    quantityInput.addEventListener('input', function() {
+        const totalPrice = pricePerItem * quantityInput.value;
+        totalSpan.textContent = totalPrice.toFixed(2);
+        hiddenQuantity.value = quantityInput.value;
+        hiddenQuantityBuy.value = quantityInput.value;
+    });
+
+    function redirectToLogin() {
+      window.location.href = "{% url 'login' %}?next={% url 'create_order' category.id product.id %}";
+  }
+</script>
 
 <style>
   .pic-box {

@@ -5,57 +5,98 @@
 {% endblock title %}
 
 {% block content %}
-<div class="container " style="margin-top:100px;min-height:600px;">
-    <h1 class="mb-4">Payment for Order</h1>
-    <p class="lead">Total Price: ${{ order.total_price }}</p>
+<div class="container" style=margin-top:100px;min-height:600px;>
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm p-4">
+                <h1 class="mb-4 text-center">Payment for Order</h1>
+                <p class="lead text-center">Total Price: ${{ order.total_price }}</p>
 
-    <form action="{% url 'payment' order.id %}" method="post" class="form-group">
-        {% csrf_token %}
-        
-        <div class="mb-3">
-            <label for="payment_method" class="form-label">Payment Method:</label>
-            <select id="payment_method" name="payment_method" class="form-select" required>
-                <option value="credit_card">Credit Card</option>
-                <option value="paypal">PayPal</option>
-                <option value="bank_transfer">Bank Transfer</option>
-            </select>
-        </div>
-        
-        <div class="mb-3">
-            <label for="amount" class="form-label">Amount:</label>
-            <input type="text" id="amount" name="amount" class="form-control" value="{{ order.total_price }}" readonly>
-        </div>
+                <form action="{% url 'payment' order.id %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="payment_method" class="form-label">Payment Method:</label>
+                        <select id="payment_method" name="payment_method" class="form-select" required>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount:</label>
+                        <input type="text" id="amount" name="amount" class="form-control" value="{{ order.total_price }}" readonly>
+                    </div>
 
-        <button type="submit" class="btn btn-primary">Pay</button>
-    </form>
+                    <div class="mb-3">
+                        <label for="transaction_id" class="form-label">Transaction ID</label>
+                        <input type="text" class="form-control" name="transaction_id" placeholder="Enter your transaction ID" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-block">Pay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
+
 <style>
-    /* Add custom styles if necessary */
-body {
-    background-color: #f8f9fa;
-}
+    /* Improved styles for better UI */
+    body {
+        background-color: #f8f9fa;
+    }
 
-.container {
-    max-width: 600px;
-    margin-top: 20px;
-}
+    .container {
+        margin-top: 50px;
+    }
 
-h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
+    .card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 
-form {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+    h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #333;
+    }
 
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-}
+    .lead {
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: #555;
+    }
 
+    .form-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-control, .form-select {
+        font-size: 1rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        font-size: 1.25rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
 </style>

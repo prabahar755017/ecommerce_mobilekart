@@ -1,19 +1,11 @@
 {% extends 'ecommerce/layouts/main.html' %}
+
 {% block title %}
-MobileKart | Online Shopping
+    MobileKart | Online Shopping
 {% endblock title %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product List</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
-</head>
-<body>
-    <section class="bg-light py-5" >
+<section class="bg-light py-5">
     <div class="container">
         <div class="row">
             <!-- Sidebar for Filters -->
@@ -66,28 +58,22 @@ MobileKart | Online Shopping
 
             <!-- Main Product List Section -->
             <main class="col-md-9">
-                <div class="image-row mb-4">
+                <div class="row">
                     {% for item in products %}
                         <div class="col-sm-6 col-lg-4 col-xl-3 mb-4">
-                             <div class="card product-card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
-                                {% if item.collection and item.collection.name %}
-                                <a href="{% url 'product_details' cname=item.collection.name pname=item.name %}" class="stretched-link">
-                                    {% else %}
-                                    <a href="#" class="stretched-link">
-                                        {% endif %}
-                <img src="{{ item.product_image.url }}" class="card-img-top img-fluid rounded-top" alt="{{ item.name }}" style="height: 250px; object-fit: cover;">
-                <div class="card-body p-3 text-center">
-                    <h5 class="card-title text-dark fw-bold mb-2">{{ item.name }}</h5>
-                    <p class="card-text d-flex justify-content-between align-items-center">
-                        <span class="old_price text-muted" style="font-size: 0.9rem;"><s>Rs. {{ item.original_price | stringformat:'d' }}</s></span>
-                        <span class="new_price text-danger fw-bold" style="font-size: 1.1rem;">Rs. {{ item.selling_price | stringformat:'d' }}</span>
-                    </p>
-                    <button class="btn btn-primary w-100 mt-2 add-to-cart-btn">Add to Cart</button>
-                </div>
-            </a>
-        </div>
-    </div>
-{% endfor %}
+                            <div class="card product-card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                                <img src="{{ item.product_image.url }}" class="card-img-top img-fluid rounded-top" alt="{{ item.name }}" style="height: 250px; object-fit: cover;">
+                                <div class="card-body p-3 text-center">
+                                    <h5 class="card-title text-dark fw-bold mb-2">{{ item.name }}</h5>
+                                    <p class="card-text d-flex justify-content-between align-items-center">
+                                        <span class="old_price text-muted" style="font-size: 0.9rem;"><s>Rs. {{ item.original_price }}</s></span>
+                                        <span class="new_price text-danger fw-bold" style="font-size: 1.1rem;">Rs. {{ item.selling_price }}</span>
+                                    </p>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
 
                 <!-- Pagination -->
@@ -95,33 +81,33 @@ MobileKart | Online Shopping
                     <nav aria-label="Page navigation">
                         <ul class="pagination">
                             {% if products.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page=1{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="First">
-                                    <span aria-hidden="true">&laquo;&laquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
                             {% endif %}
                             {% for num in products.paginator.page_range %}
-                            <li class="page-item {% if products.number == num %}active{% endif %}">
-                                <a class="page-link" href="?page={{ num }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}">{{ num }}</a>
-                            </li>
+                                <li class="page-item {% if products.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}">{{ num }}</a>
+                                </li>
                             {% endfor %}
                             {% if products.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Last">
-                                    <span aria-hidden="true">&raquo;&raquo;</span>
-                                </a>
-                            </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
                             {% endif %}
                         </ul>
                     </nav>
@@ -310,9 +296,6 @@ MobileKart | Online Shopping
     }
     
 </style>
-    
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
 {% endblock content %}

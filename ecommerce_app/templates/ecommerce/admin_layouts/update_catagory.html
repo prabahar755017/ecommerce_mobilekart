@@ -1,25 +1,43 @@
-{%extends 'ecommerce/admin_layouts/base.html'%}
+{% extends 'ecommerce/admin_layouts/base.html' %}
+
 {% block content %}
-<h2>Update Catagory</h2>
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label for="name">Name:</label>
-    <input type="text" name="name" value="{{ catagory.name }}" required><br>
+<div class="container mt-5">
+    <h2 class="mb-4">Update Category</h2>
+    
+    <form method="POST" enctype="multipart/form-data" class="bg-light p-4 rounded shadow-sm">
+        {% csrf_token %}
+        
+        <div class="form-group mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" name="name" id="name" class="form-control" value="{{ catagory.name }}" required>
+        </div>
 
-    <label for="description">Description:</label>
-    <textarea name="description" required>{{ catagory.description }}</textarea><br>
+        <div class="form-group mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <textarea name="description" id="description" class="form-control" rows="4" required>{{ catagory.description }}</textarea>
+        </div>
 
-    <label for="status">Status:</label>
-    <select name="status">
-        <option value="0" {% if not catagory.status %}selected{% endif %}>Show</option>
-        <option value="1" {% if catagory.status %}selected{% endif %}>Hidden</option>
-    </select><br>
+        <div class="form-group mb-3">
+            <label for="status" class="form-label">Status:</label>
+            <select name="status" id="status" class="form-select">
+                <option value="0" {% if not catagory.status %}selected{% endif %}>Show</option>
+                <option value="1" {% if catagory.status %}selected{% endif %}>Hidden</option>
+            </select>
+        </div>
 
-    <label for="image">Image:</label>
-    <input type="file" name="image"><br>
-    <img src="{{ catagory.image.url }}" alt="Current Image"><br>
+        <div class="form-group mb-3">
+            <label for="image" class="form-label">Image:</label>
+            <input type="file" name="image" id="image" class="form-control">
+            {% if catagory.image %}
+                <div class="mt-3">
+                    <img src="{{ catagory.image.url }}" alt="Current Image" class="img-fluid rounded" style="max-width: 150px;">
+                </div>
+            {% endif %}
+        </div>
 
-    <button type="submit">Update</button>
-</form>
-<a href="{% url 'list_catagory' %}">Back to list</a>
+        <button type="submit" class="btn btn-primary w-100">Update</button>
+    </form>
+
+    <a href="{% url 'list_catagory' %}" class="btn btn-secondary mt-3 w-100">Back to list</a>
+</div>
 {% endblock %}

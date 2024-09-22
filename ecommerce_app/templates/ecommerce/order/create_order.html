@@ -17,25 +17,19 @@
             <h2>Place Order for {{ product.name }}</h2>
             <p>Price per unit: ₹{{ product.selling_price }}</p>
 
-            <form method="POST">
+            <form method="POST" action="{% url 'create_order' category.id product.id %}">
                 {% csrf_token %}
-                
-                <!-- Quantity input -->
-                <div class="mb-3">
-                    <label for="quantity" class="form-label">Quantity:</label>
-                    <input type="number" id="quantity" name="quantity" min="1" value="1" class="form-control" required>
+                <div>
+                    <label for="quantity">Quantity</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" required>
                 </div>
-                
-                <!-- Shipping Address -->
-                <div class="mb-3">
-                    <label for="shipping_address" class="form-label">Shipping Address:</label>
-                    <textarea id="shipping_address" name="shipping_address" class="form-control" rows="3" required></textarea>
+                <div>
+                    <label for="shipping_address">Shipping Address</label>
+                    <textarea name="shipping_address" id="shipping_address" required></textarea>
                 </div>
-
-                
-                <!-- Submit Button -->
                 <button type="submit" class="btn btn-primary">Place Order</button>
             </form>
+            
         </div>
     </div>
 </div>

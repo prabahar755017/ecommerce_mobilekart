@@ -39,8 +39,8 @@ class Product(models.Model):
 
 
 class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # User is nullable for guests
-    session_id = models.CharField(max_length=255, null=True, blank=True)  # For anonymous users
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  
+    session_id = models.CharField(max_length=255, null=True, blank=True)  
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     product_qty = models.IntegerField(null=False, blank=False)
     created_at = models.DateTimeField(default=timezone.now)

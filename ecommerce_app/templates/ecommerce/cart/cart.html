@@ -1,57 +1,84 @@
 {% extends 'ecommerce/layouts/main.html' %}
 {% block title %}
-  Registration | MobileKart
+  Cart | MobileKart
 {% endblock title %}
 {% block content %}
-  <section class="bg-light py-4 my-5" style="min-height:600px;">
+<section class="bg-light py-4 my-5" style="min-height:600px;">
     <div class="container">
-      <div class="row">
-        <div class="col-12">
-          <h4 class="mb-3">Cart  Items</h4>
-          <hr style="border-color:#b8bfc2;">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">My Cart ({{ cart|length }} Items)</h4>
+                <hr style="border-color:#b8bfc2;">
+            </div>
+
+            <div class="col-md-8">
+                <div class="cart-items-list">
+                    {% for item in cart %}
+                    <div class="cart-item d-flex align-items-center mb-3 p-3 shadow-sm" style="background-color: #fff; border-radius: 8px;">
+                        <div class="cart-item-image">
+                            <img src="{{item.product.product_image.url}}" height="100px" alt="{{item.product.name}}" style="border-radius: 8px;">
+                        </div>
+                        <div class="cart-item-details mx-4 flex-grow-1">
+                            <h5>{{item.product.name}}</h5>
+                            <p class="text-muted">Price: ₹{{item.product.selling_price | stringformat:'d'}}</p>
+                        </div>
+                        <div class="col-md-2">
+                            <form method="POST" action="{% url 'update_cart' item.id %}">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <button type="submit" name="action" value="decrease" class="btn btn-outline-secondary">-</button>
+                                    <input type="text" value="{{ item.product_qty }}" class="form-control text-center" readonly>
+                                    <button type="submit" name="action" value="increase" class="btn btn-outline-secondary">+</button>
+                                </div>
+                            </form> 
+                        </div>
+                        <div class="cart-item-total mx-4">
+                            <h6>₹{{item.total_cost | stringformat:'d'}}</h6>
+                        </div>
+                        <div class="cart-item-remove">
+                            <a href="{% url 'remove_cart' item.id %}" onclick="return confirm('Are you sure? to Remove')" class="text-danger"><i class="fa fa-trash"></i></a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Price Summary -->
+            <div class="col-md-4">
+                <div class="price-summary p-4 shadow-sm" style="background-color: #fff; border-radius: 8px;">
+                    <h5 class="mb-3">PRICE DETAILS</h5>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <p>Price ({{ cart|length }} items)</p>
+                        <p>₹<span id="price-total">0</span></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p>Delivery Charges</p>
+                        <p style="color: green;">FREE</p>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <h6>Total Amount</h6>
+                        <h6>₹<span id="net">0</span></h6>
+                    </div>
+                    <button class="btn btn-primary btn-block mt-3" style="background-color: #fb641b; border: none;">Place Order</button>
+                </div>
+            </div>
         </div>
-      
-        <table>
-            <tr>
-                <th>Image</th>
-                <th>Product Name</th>
-                <th>Unit</th>
-                <th>Quantity</th>
-                <th>Amount</th>
-                <th>Remove</th>
-            </tr>
-          
+    </div>
+</section>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
 
-            {% for item in cart %}
-           <tr>
-              <td><img src="{{item.product.product_image.url}}" height="75px" alt="{{item.product.name}}"></td>
-              <td>{{item.product.name}}</td>
-              <td>{{item.product.selling_price | stringformat:'d'}}</td>
-              <td>{{item.product_qty}}</td>
-              <td class="amt">{{item.total_cost | stringformat:'d'}}</td>
-              <td><a href="{% url 'remove_cart' item.id %}"  onclick="return confirm('Are you sure? to Remove')"  class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Remove</a></td>
-            </tr>
-            {% endfor %}
-            <tr>
-              <td></td>
-              <td></td>
-              <td colspan="2"><b>Total Amount</b></td>
-              <th id="net">0</th>
-            </tr>
-           
-        </table>
-       
-      </div>
-      </div>
-  </section>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
-  <script>
-    const nodes = document.querySelectorAll('.amt');
+<script>
+    // Calculate and update the total price
+    const nodes = document.querySelectorAll('.cart-item-total h6');
     const arr = Array.from(nodes);
-    const res = arr.reduce((acc, curr) => {
-     return acc += Number(curr.textContent)
-    }, 0);
-    document.getElementById("net").innerHTML="Rs : "+res;
-
-  </script>
+    const total = arr.reduce((acc, curr) => acc + Number(curr.textContent.replace('₹', '')), 0);
+    document.getElementById('net').textContent = total;
+    document.getElementById('price-total').textContent = total;
+</script>
 {% endblock content %}
