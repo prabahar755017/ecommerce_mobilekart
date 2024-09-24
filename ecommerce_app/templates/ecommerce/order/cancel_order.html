@@ -1,0 +1,20 @@
+{% extends 'ecommerce/layouts/main.html' %}
+
+{% block title %}
+  Confirm Cancel Order | MobileKart
+{% endblock title %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px; min-height: 400px;">
+    <h1 class="text-center">Confirm Cancellation</h1>
+    <div class="text-center">
+        <p>Are you sure you want to cancel Order ID: <strong>{{ order.id }}</strong>?</p>
+        <p>Status: <strong>{{ order.status }}</strong></p>
+        <p>Total Price: ₹{{ order.total_price }}</p>
+        <div>
+            <a href="{% url 'cancel_order' order.id %}" class="btn btn-danger">Yes, Cancel Order</a>
+            <a href="{% url 'order_list_user' %}" class="btn btn-secondary">No, Go Back</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}

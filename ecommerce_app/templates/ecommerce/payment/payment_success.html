@@ -1,7 +1,7 @@
 {% extends 'ecommerce/layouts/main.html' %}
 
 {% block title %}
-  Payment Success | MobileKart
+  Order Success | MobileKart
 {% endblock title %}
 
 {% block content %}
@@ -12,7 +12,7 @@
             <div class="card border-success shadow-sm">
                 <div class="card-body text-center">
                     <h2 class="card-title text-success">Thank You!</h2>
-                    <p class="card-text">Your payment was successful and your order has been confirmed.</p>
+                    <p class="card-text">Your order has been confirmed.</p>
                     <hr class="my-4">
                     <p class="card-text">You will receive a confirmation email shortly. If you have any questions, feel free to contact our support team.</p>
                     <a href="{% url 'home' %}" class="btn btn-primary mt-3">Return to Home</a>

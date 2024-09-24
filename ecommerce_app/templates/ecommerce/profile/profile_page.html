@@ -1,0 +1,147 @@
+{% extends 'ecommerce/layouts/main.html' %}
+{% load static %}
+{% block content %}
+<div class="profile-container" style="margin-top:100px;min-height:600px">
+    <div class="sidebar">
+        <div class="profile-info card">
+            <img src="{% if profile.profile_image %}{{ profile.profile_image.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="Profile Picture" class="profile-pic">
+            <h3>{{ user.username }}</h3>
+            <p>{{ user.email }}</p>
+        </div>
+        <nav class="profile-menu">
+        </nav>
+    </div>
+
+    <div class="profile-content">
+        <h2>My Profile</h2>
+        
+        <div class="profile-section card">
+            <h3>Upload Profile Picture</h3>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="profile_image" accept="image/*" class="file-input">
+                <button type="submit" class="btn">Upload Image</button>
+            </form>
+        </div>
+
+        <div class="address-section card">
+            <h3>Manage Addresses</h3>
+            <a href="{% url 'add_address' %}" class="btn btn-primary">Add New Address</a>
+
+            <div class="address-list">
+                {% for address in addresses %}
+                    <div class="address-card">
+                        <p>{{ address.name }}</p>
+                        <p>{{ address.street }}, {{ address.city }}, {{ address.state }}, {{ address.zip_code }}</p>
+                        <div class="address-actions">
+                            <a href="{% url 'edit_address' address.id %}" class="btn btn-secondary">Edit</a>
+                            <a href="{% url 'delete_address' address.id %}" class="btn btn-danger">Delete</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No addresses available. Please add a new address.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f4f4f4;
+    }
+
+    .profile-container {
+        display: flex;
+        padding: 20px;
+        max-width: 1200px;
+        margin: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar {
+        width: 25%;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        margin-right: 20px;
+    }
+
+    .profile-info {
+        text-align: center;
+    }
+
+    .profile-pic {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+    }
+
+    .profile-menu a {
+        display: block;
+        margin: 10px 0;
+        text-decoration: none;
+        color: #2874f0;
+        font-weight: bold;
+    }
+
+    .profile-content {
+        flex-grow: 1;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .file-input {
+        margin-bottom: 10px;
+    }
+
+    .address-card {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+    }
+
+    .address-actions {
+        margin-top: 10px;
+    }
+
+    button, .btn {
+        background-color: #2874f0;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover, .btn:hover {
+        background-color: #165bbd;
+    }
+
+    @media (max-width: 768px) {
+        .profile-container {
+            flex-direction: column;
+        }
+        .sidebar {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 20px;
+        }
+    }
+</style>
+{% endblock %}

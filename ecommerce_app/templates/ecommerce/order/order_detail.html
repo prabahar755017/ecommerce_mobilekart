@@ -16,6 +16,8 @@
                 <div class="col-md-6">
                     <h5>Status</h5>
                     <p class="lead">{{ order.status }}</p>
+                    <h5>Order Type</h5>
+                    <p class="lead">{{ order.payment.payment_method}}</p>
                 </div>
                 <div class="col-md-6">
                     <h5>Total Price</h5>
@@ -42,8 +44,7 @@
                 {% endfor %}
             </ul>
             <div class="mt-4 text-center">
-                <a href="{% url 'payment_detail' order.id %}" class="btn btn-primary me-2">View Payment Detail</a>
-                <a href="{% url 'order_list' %}" class="btn btn-secondary">Back to Orders</a>
+                <a href="{% url 'order_list_user' %}" class="btn btn-secondary">Back to Orders</a>
             </div>
         </div>
     </div>

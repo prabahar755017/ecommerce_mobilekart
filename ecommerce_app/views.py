@@ -8,9 +8,10 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 import json
- 
-from django.http import  JsonResponse,HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_exempt
+import logging
+from django.db import transaction
+from django.http import HttpResponseBadRequest
+
 
 def home(request):
     products=Product.objects.filter(trending=1)
@@ -69,9 +70,9 @@ def collections_view(request,name):
         return redirect('collections')
     
 
-def product_details(request, cname, pname):
-    category = get_object_or_404(Category, name=cname, status=0)
-    product = Product.objects.filter(name=pname, status=0).first()
+def product_details(request,category, product):
+    category = get_object_or_404(Category, name__iexact=category,status=0)
+    product = get_object_or_404(Product, name__iexact=product, category=category,status=0)
 
     if product:
         return render(request, 'ecommerce/products/product_detail.html', {'product': product, 'category': category})
@@ -129,9 +130,7 @@ def remove_cart(request,cid):
     cartitem.delete()
     return redirect("/cart")
 
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Cart
+
 
 def update_cart(request, item_id):
     # Check if the user is authenticated
@@ -179,122 +178,128 @@ def update_cart(request, item_id):
 
 @login_required
 def create_order(request, category_id, product_id):
-    # Fetch the product and category
     product = get_object_or_404(Product, id=product_id)
     category = get_object_or_404(Category, id=category_id)
+    addresses = request.user.addresses.all()
+    total_quantity = 0
+    total_amount = 0
 
     if request.method == 'POST':
-        print("POST Data: ", request.POST)  # Log POST data for debugging
         quantity = request.POST.get('quantity')
-        shipping_address = request.POST.get('shipping_address')
-        print(f"Quantity: {quantity}, Shipping Address: {shipping_address}")
+        selected_address_id = request.POST.get('shipping_address')
+        
+        new_address_data = {
+            'name': request.POST.get('new_address_name'),
+            'street': request.POST.get('new_address_street'),
+            'city': request.POST.get('new_address_city'),
+            'state': request.POST.get('new_address_state'),
+            'zip_code': request.POST.get('new_address_zip_code'),
+        }
 
-        if not quantity or not shipping_address:
-            return HttpResponse("Invalid data", status=400)
+        if not quantity:
+            messages.error(request, "Quantity is required")
+            return render(request, 'ecommerce/order/create_order.html', {'products': [product], 'category': category, 'addresses': addresses})
 
-        quantity = int(quantity)
+        try:
+            quantity = int(quantity)
+        except ValueError:
+            messages.error(request, "Invalid quantity")
+            return render(request, 'ecommerce/order/create_order.html', {'products': [product], 'category': category, 'addresses': addresses})
 
-        # Check stock availability
+        total_quantity = quantity
+        total_amount = product.selling_price * total_quantity
+
+        if selected_address_id:
+            shipping_address = get_object_or_404(Address, id=selected_address_id, user=request.user)
+        elif all(new_address_data.values()):
+            shipping_address = Address.objects.create(user=request.user, **new_address_data)
+        else:
+            messages.error(request, "Please select an existing address or enter a new one")
+            return render(request, 'ecommerce/order/create_order.html', {
+                'products': [product], 
+                'category': category, 
+                'addresses': addresses,
+                'total_quantity': total_quantity,
+                'total_amount': total_amount
+            })
+
         if product.quantity < quantity:
-            return HttpResponse("Not enough stock available", status=400)
+            messages.error(request, "Not enough stock available")
+            return render(request, 'ecommerce/order/create_order.html', {
+                'products': [product], 
+                'category': category, 
+                'addresses': addresses,
+                'total_quantity': total_quantity,
+                'total_amount': total_amount
+            })
 
         total_price = product.selling_price * quantity
 
-        # Create a new order
-        order = Order.objects.create(
-            user=request.user,
-            shipping_address=shipping_address,
-            total_price=total_price,
-            is_paid=False,
-            status='pending'
-        )
+        try:
+            with transaction.atomic():
+                order = Order.objects.create(
+                    user=request.user,
+                    shipping_address=f"{shipping_address.name}, {shipping_address.street}, {shipping_address.city}, {shipping_address.state}, {shipping_address.zip_code}",
+                    total_price=total_price,
+                    is_paid=False,
+                    status='pending'
+                )
 
-        # Create an order item
-        OrderItem.objects.create(
-            order=order,
-            product=product,
-            quantity=quantity,
-            unit_price=product.selling_price
-        )
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=quantity,
+                    unit_price=product.selling_price
+                )
 
-        # Reduce stock
-        product.quantity -= quantity
-        product.save()
+                product.quantity -= quantity
+                product.save()
 
-        return redirect('payment', order_id=order.id)
+            return redirect('payment', order_id=order.id)
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return render(request, 'ecommerce/order/create_order.html', {
+                'products': [product], 
+                'category': category, 
+                'addresses': addresses,
+                'total_quantity': total_quantity,
+                'total_amount': total_amount
+            })
 
-    return render(request, 'ecommerce/order/create_order.html', {'product': product, 'category': category})
-
-@login_required
-def edit_order(request, pk):
-    order = get_object_or_404(Order, pk=pk)
-
-    if request.method == 'POST':
-        products = request.POST.getlist('product_ids')
-        quantities = request.POST.getlist('quantities')
-        shipping_address = request.POST.get('shipping_address')
-        
-        if not shipping_address:
-            return HttpResponse("Shipping address is required", status=400)
-
-        if not products or not quantities or len(products) != len(quantities):
-            return HttpResponse("Invalid data", status=400)
-
-        # Update order details
-        order.shipping_address = shipping_address
-        order.is_paid = False
-        order.status = 'pending'
-        order.save()
-
-        # Clear existing order items
-        OrderItem.objects.filter(order=order).delete()
-
-        total_price = 0
-        for product_id, quantity in zip(products, quantities):
-            product = get_object_or_404(Product, id=product_id)
-            quantity = int(quantity)
-            selling_price = product.selling_price
-            total_price += selling_price * quantity
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=quantity,
-                unit_price=selling_price
-            )
-
-        # Update total price of the order
-        order.total_price = total_price
-        order.save()
-
-        return redirect('order_list_user')
-
-    products = Product.objects.all()
-    order_items = OrderItem.objects.filter(order=order)
-    return render(request, 'ecommerce/order/order_edit.html', {
-        'order': order,
-        'products': products,
-        'order_items': order_items
+    return render(request, 'ecommerce/order/create_order.html', {
+        'products': [product], 
+        'category': category,  
+        'addresses': addresses,
+        'total_quantity': total_quantity,
+        'total_amount': total_amount
     })
 
 @login_required
-def delete_order(request, pk):
-    order = get_object_or_404(Order, pk=pk)
-    if request.method == 'POST':
-        order.delete()
-        messages.success(request, 'Order deleted successfully!')
-        return redirect('order_list')
-    
-    return render(request, 'ecommerce/order/order_delete.html', {'order': order})
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
 
-@login_required
-def order_list(request):
-    orders = Order.objects.filter(user=request.user).order_by('-order_date')
-    return render(request, 'ecommerce/order/order_list.html', {'orders': orders})
+    if order.status in ['pending', 'processing']:
+        order.status = 'canceled'
+        # Logic to increase the stock of the products in the order
+        for item in order.orderitem_set.all():
+            item.product.quantity += item.quantity  # Assuming you have an order item model
+            item.product.save()
+        order.save()    
+        messages.success(request, "Order canceled successfully.")
+    else:
+        messages.error(request, "Cannot cancel this order.")
+        return redirect('order_list_user')
+    return render(request, 'ecommerce/order/cancel_order.html', {'order': order})
+
+
 
 @login_required
 def order_list_user(request):
     orders = Order.objects.filter(user=request.user).order_by('-order_date')
-    return render(request, 'ecommerce/order/order_list_user.html', {'orders': orders})
+    context = {
+        'orders': orders
+    }
+    return render(request, 'ecommerce/order/order_list_user.html', context)
 
 @login_required
 def order_detail(request, pk):
@@ -308,8 +313,7 @@ def order_detail(request, pk):
 
 
 def product_list(request,):
-    products = Product.objects.filter(status=False) 
-    
+    products = Product.objects.filter(status=False)     
     category_ids = request.GET.getlist('category')  
     min_price = request.GET.get('min_price')       
     max_price = request.GET.get('max_price')       
@@ -343,6 +347,8 @@ def product_list(request,):
     return render(request, 'ecommerce/products/filter.html', context)
 
 
+
+logger = logging.getLogger(__name__)
 @login_required
 def payment(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -350,33 +356,39 @@ def payment(request, order_id):
     if request.method == 'POST':
         # Get payment details from the form
         payment_method = request.POST.get('payment_method')
-        amount = request.POST.get('amount')  # Amount should match the order total
-        transaction_id = request.POST.get('transaction_id')  
+        amount = request.POST.get('amount')  # Amount should match the order total  
 
-        # Validate and simulate payment processing
-        if payment_method and amount and transaction_id:
-            try:
-                # Create a Payment record
-                payment = Payment.objects.create(
-                    order=order,
-                    amount=amount,
-                    payment_method=payment_method,
-                    payment_status=True,  
-                    transaction_id=transaction_id,  
-                )
-                
-                # Update the order status
-                order.is_paid = True
-                order.save()
+        # Validate payment details
+        if not payment_method or not amount:
+            messages.error(request, "Invalid payment details. All fields are required.")
+            return render(request, 'ecommerce/payment/payment.html', {'order': order})
 
-                # Display a success message and redirect
-                messages.success(request, "Payment successful! Your order is confirmed.")
-                return redirect('payment_success')
-            except Exception as e:
-                messages.error(request, f"Payment processing error: {str(e)}")
-        else:
-            messages.error(request, "Invalid payment details.")
-            return HttpResponseBadRequest("Payment method, amount, or transaction ID is missing.")
+        try:
+            # Ensure the payment amount matches the order total
+            if float(amount) != order.total_price:
+                messages.error(request, "Payment amount does not match the order total.")
+                return render(request, 'ecommerce/payment/payment.html', {'order': order})
+
+            # Simulate payment processing and create a Payment record
+            payment = Payment.objects.create(
+                order=order,
+                amount=amount,
+                payment_method=payment_method,
+                payment_status=False,  # Assuming payment is successful  
+            )
+            
+            # Update the order status to paid
+            order.is_paid = False
+            order.save()
+
+            # Display success message and redirect
+            messages.success(request, "successful! Your order is confirmed.")
+            return redirect('payment_success')
+        
+        except Exception as e:
+            logger.error(f"Payment processing failed: {str(e)}")
+            messages.error(request, "Payment processing error. Please try again.")
+            return render(request, 'ecommerce/payment/payment.html', {'order': order})
     
     return render(request, 'ecommerce/payment/payment.html', {'order': order})
 
@@ -605,3 +617,55 @@ def admin_cart_list(request):
 def admin_payment_list(request):
     payments = Payment.objects.all()
     return render(request, 'ecommerce/admin_layouts/payment_list.html', {'payments': payments})
+
+def profile_view(request):
+    user = request.user
+    addresses = Address.objects.filter(user=user)
+    return render(request, 'ecommerce/profile/profile_page.html', {'user': user, 'addresses': addresses})
+
+@login_required
+def profile_view(request):
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    addresses = Address.objects.filter(user=request.user)
+
+    if request.method == 'POST':
+        if 'profile_image' in request.FILES:
+            profile.profile_image = request.FILES['profile_image']
+            profile.save()
+        return redirect('profile')
+
+    return render(request, 'ecommerce/profile/profile_page.html', {'profile': profile, 'addresses': addresses})
+
+@login_required
+def add_address(request):
+    if request.method == 'POST':
+        Address.objects.create(
+            user=request.user,
+            name=request.POST['name'],
+            street=request.POST['street'],
+            city=request.POST['city'],
+            state=request.POST['state'],
+            zip_code=request.POST['zip_code']
+        )
+        return redirect('profile')
+    return render(request, 'ecommerce/profile/add_address.html')
+
+@login_required
+def delete_address(request, address_id):
+    address = Address.objects.get(id=address_id, user=request.user)
+    if address:
+        address.delete()
+    return redirect('profile')
+
+@login_required
+def edit_address(request, address_id):
+    address = Address.objects.get(id=address_id, user=request.user)
+    if request.method == 'POST':
+        address.name = request.POST['name']
+        address.street = request.POST['street']
+        address.city = request.POST['city']
+        address.state = request.POST['state']
+        address.zip_code = request.POST['zip_code']
+        address.save()
+        return redirect('profile')
+    return render(request, 'ecommerce/profile/edit_address.html', {'address': address})

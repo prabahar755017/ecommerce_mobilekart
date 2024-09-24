@@ -18,9 +18,7 @@
                     <div class="mb-3">
                         <label for="payment_method" class="form-label">Payment Method:</label>
                         <select id="payment_method" name="payment_method" class="form-select" required>
-                            <option value="credit_card">Credit Card</option>
-                            <option value="paypal">PayPal</option>
-                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="cashondelivery">CashOnDelivery</option>
                         </select>
                     </div>
                     
@@ -28,12 +26,6 @@
                         <label for="amount" class="form-label">Amount:</label>
                         <input type="text" id="amount" name="amount" class="form-control" value="{{ order.total_price }}" readonly>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="transaction_id" class="form-label">Transaction ID</label>
-                        <input type="text" class="form-control" name="transaction_id" placeholder="Enter your transaction ID" required>
-                    </div>
-
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-block">Pay</button>
                     </div>
