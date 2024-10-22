@@ -1,0 +1,82 @@
+{% extends 'ecommerce/layouts/main.html' %}
+
+{% block title %}
+  Create Order from Cart | MobileKart
+{% endblock title %}
+
+{% block content %}
+<section class="bg-light py-4 my-5" style="min-height:600px;">
+    <div class="container">
+        <h4 class="mb-4">Create Order from Cart</h4>
+        <hr>
+
+        <div class="row">
+            <div class="col-md-8">
+                <h5>Your Cart Items</h5>
+                <div class="list-group">
+                    {% for item in cart_items %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}" class="product-image mr-2" style="width: 60px; height: 60px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ item.product.name }}</h6>
+                            <small>Quantity: {{ item.product_qty }}</small>
+                        </div>
+                        <span class="font-weight-bold">₹{{ item.total_cost }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <h5>Price Summary</h5>
+                <div class="border p-3 rounded shadow-sm">
+                    <p><strong>Total Quantity:</strong> {{ total_quantity }}</p>
+                    <p><strong>Total Amount:</strong> ₹{{ total_amount }}</p>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="mt-4">Select Shipping Address</h5>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <div class="form-group">
+                <select name="shipping_address" class="form-control" required>
+                    <option value="">Select an address</option>
+                    {% for address in addresses %}
+                        <option value="{{ address.id }}">{{ address.name }}, {{ address.street }}, {{ address.city }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h5 class="mt-4">Or Add New Address</h5>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <input type="text" name="new_address_name" class="form-control" placeholder="Name" >
+                </div>
+                <div class="form-group col-md-6">
+                    <input type="text" name="new_address_zip_code" class="form-control" placeholder="ZIP Code" >
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="text" name="new_address_street" class="form-control" placeholder="Street" >
+            </div>
+            <div class="form-group">
+                <input type="text" name="new_address_city" class="form-control" placeholder="City" >
+            </div>
+            <div class="form-group">
+                <input type="text" name="new_address_state" class="form-control" placeholder="State" >
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3" style="background-color: #fb641b; border: none;">
+                Place Order
+            </button>
+        </form>
+    </div>
+</section>
+
+<style>
+    .product-image {
+        border-radius: 8px;
+    }
+</style>
+{% endblock content %}

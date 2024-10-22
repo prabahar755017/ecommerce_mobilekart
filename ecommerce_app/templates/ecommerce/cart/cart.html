@@ -23,7 +23,7 @@
                             <p class="text-muted">Price: ₹{{item.product.selling_price | stringformat:'d'}}</p>
                         </div>
                         <div class="col-md-2">
-                            <form method="POST" action="{% url 'update_cart' item.id %}">
+                            <form method="POST" action="{% url 'update_cart' item.product_id %}">
                                 {% csrf_token %}
                                 <div class="input-group">
                                     <button type="submit" name="action" value="decrease" class="btn btn-outline-secondary">-</button>
@@ -61,7 +61,15 @@
                         <h6>Total Amount</h6>
                         <h6>₹<span id="net">0</span></h6>
                     </div>
-                    <button class="btn btn-primary btn-block mt-3" style="background-color: #fb641b; border: none;">Place Order</button>
+                    <form method="POST" action="{% url 'create_order_from_cart' %}" class="d-inline">
+                        {% csrf_token %}
+    
+                        {% if user.is_authenticated %}
+                            <button type="submit" class="btn btn-primary btn-lg buy-now-btn">Place Order</button>
+                        {% else %}
+                            <button type="button" class="btn btn-danger btn-lg ml-2" onclick="redirectToLogin()">Place Order</button>
+                        {% endif %}
+                    </form>
                 </div>
             </div>
         </div>
@@ -80,5 +88,9 @@
     const total = arr.reduce((acc, curr) => acc + Number(curr.textContent.replace('₹', '')), 0);
     document.getElementById('net').textContent = total;
     document.getElementById('price-total').textContent = total;
+
+    function redirectToLogin() {
+        window.location.href = "{% url 'login' %}?next={% url 'create_order_from_cart' %}";
+      }
 </script>
 {% endblock content %}

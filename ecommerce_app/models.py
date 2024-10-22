@@ -22,7 +22,7 @@ class Category(models.Model):
 class Product(models.Model):
   category=models.ForeignKey('ecommerce_app.Category',on_delete=models.CASCADE)
   name=models.CharField(max_length=150,null=False,blank=False)
-  vendor=models.CharField(max_length=150,null=False,blank=False)
+  vendor=models.CharField(max_length=150,null=False,blank=False) 
   product_image=models.ImageField(upload_to=getFileName,null=True,blank=True)
   quantity=models.IntegerField(null=False,blank=False)
   original_price=models.FloatField(null=False,blank=False)

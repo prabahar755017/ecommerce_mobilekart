@@ -220,8 +220,7 @@
             
             <!-- Quantity input -->
             <div class="form-group">
-                <label for="quantity">Quantity:</label>
-                <input type="number" name="quantity" id="quantity" class="form-control" min="{{total_quantity}}" max="{{total_quantity}}"  value="{{ total_quantity }}">
+                <p><strong>OrderQuantity:</strong>{{total_quantity}}</p>
             </div>
 
             <!-- Existing Address Selection -->
@@ -263,6 +262,7 @@
             <!-- Submit Button -->
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">Place Order</button>
+                 <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
         <!-- Display total amount dynamically based on quantity -->

@@ -132,47 +132,34 @@ def remove_cart(request,cid):
 
 
 
-def update_cart(request, item_id):
-    # Check if the user is authenticated
+def update_cart(request, product_id):
+    action = request.POST.get('action')
+    
     if request.user.is_authenticated:
-        # For authenticated users, get the cart item from the database
-        cart_item = get_object_or_404(Cart, id=item_id, user=request.user)
+        # Authenticated user - Get the cart item for the logged-in user
+        cart_item = get_object_or_404(Cart, product_id=product_id, user=request.user)
     else:
-        # For unauthenticated users, use session data
-        cart_items = request.session.get('cart_items', {})
-        if str(item_id) not in cart_items:
-            return redirect('cart')  # Item not found in session cart
+        # Unauthenticated user - Get the session ID and find the cart item
+        session_id = request.session.session_key
+        if not session_id:
+            request.session.create()  # Create a new session if it doesn't exist
+            session_id = request.session.session_key
 
-        # Get the current quantity
-        quantity = cart_items[str(item_id)]
-        action = request.POST.get('action')
+        cart_item = get_object_or_404(Cart, product_id=product_id, session_id=session_id)
 
-        # Update the quantity based on the action
-        if action == 'increase':
-            cart_items[str(item_id)] = quantity + 1
-        elif action == 'decrease':
-            if quantity > 1:
-                cart_items[str(item_id)] = quantity - 1
-            else:
-                del cart_items[str(item_id)]  # Remove item if quantity is 0
+    # Handle the action (increase or decrease quantity)
+    if action == 'increase':
+        cart_item.product_qty += 1
+    elif action == 'decrease' and cart_item.product_qty > 1:
+        cart_item.product_qty -= 1
+    else:
+        # Optionally, if the quantity is 0 or the action is to remove, delete the cart item
+        cart_item.delete()
+        return redirect('cart')
 
-        # Save the updated cart back to session
-        request.session['cart_items'] = cart_items
-        request.session.modified = True  # Mark session as modified
-        return redirect('cart')  # Redirect to cart view
-
-    # If the user is authenticated, update the database cart item
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        if action == 'increase':
-            cart_item.product_qty += 1
-        elif action == 'decrease' and cart_item.product_qty > 1:
-            cart_item.product_qty -= 1
-        else:
-            cart_item.delete()  # Optionally delete item if quantity is 0
-
-        cart_item.save()
-
+    # Save the updated cart item
+    cart_item.save()
+    
     return redirect('cart')
 
 
@@ -669,3 +656,89 @@ def edit_address(request, address_id):
         address.save()
         return redirect('profile')
     return render(request, 'ecommerce/profile/edit_address.html', {'address': address})
+
+
+@login_required
+def create_order_from_cart(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    addresses = request.user.addresses.all()
+    total_quantity = sum(item.product_qty for item in cart_items)
+    total_amount = sum(item.total_cost for item in cart_items)
+
+    if request.method == 'POST':
+        selected_address_id = request.POST.get('shipping_address')
+        new_address_data = {
+            'name': request.POST.get('new_address_name'),
+            'street': request.POST.get('new_address_street'),
+            'city': request.POST.get('new_address_city'),
+            'state': request.POST.get('new_address_state'),
+            'zip_code': request.POST.get('new_address_zip_code'),
+        }
+
+        # Validate selected address or new address
+        if selected_address_id:
+            shipping_address = get_object_or_404(Address, id=selected_address_id, user=request.user)
+        elif all(new_address_data.values()):
+            shipping_address = Address.objects.create(user=request.user, **new_address_data)
+        else:
+            messages.error(request, "Please select an existing address or enter a new one.")
+            return render(request, 'ecommerce/order/create_order_from_cart.html', {
+                'cart_items': cart_items,
+                'addresses': addresses,
+                'total_quantity': total_quantity,
+                'total_amount': total_amount
+            })
+
+        # Check stock availability and create order
+        total_price = 0
+        for item in cart_items:
+            if item.product.quantity < item.product_qty:
+                messages.error(request, f"Not enough stock available for {item.product.name}.")
+                return render(request, 'ecommerce/order/create_order_from_cart.html', {
+                    'cart_items': cart_items,
+                    'addresses': addresses,
+                    'total_quantity': total_quantity,
+                    'total_amount': total_amount
+                })
+            total_price += item.total_cost
+
+        try:
+            with transaction.atomic():
+                order = Order.objects.create(
+                    user=request.user,
+                    shipping_address=f"{shipping_address.name}, {shipping_address.street}, {shipping_address.city}, {shipping_address.state}, {shipping_address.zip_code}",
+                    total_price=total_price,
+                    is_paid=False,
+                    status='pending'
+                )
+
+                for item in cart_items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item.product,
+                        quantity=item.product_qty,
+                        unit_price=item.product.selling_price
+                    )
+                    # Reduce product stock
+                    item.product.quantity -= item.product_qty
+                    item.product.save()
+
+                # Clear the cart after creating the order
+                cart_items.delete()
+
+            return redirect('payment', order_id=order.id)
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return render(request, 'ecommerce/order/create_order_from_cart.html', {
+                'cart_items': cart_items,
+                'addresses': addresses,
+                'total_quantity': total_quantity,
+                'total_amount': total_amount
+            })
+
+    return render(request, 'ecommerce/order/create_order_from_cart.html', {
+        'cart_items': cart_items,
+        'addresses': addresses,
+        'total_quantity': total_quantity,
+        'total_amount': total_amount
+    })
